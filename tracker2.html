@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>第2个10天 · 扎根</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=DM+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,600;1,500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #f7f3ed; --paper: #ffffff; --ink: #1a1612; --muted: #7a6e60;
+  --border: #e0d8cc; --gold: #b8944a; --gold-light: rgba(184,148,74,0.12);
+  --body-c: #b04a20; --body-bg: rgba(176,74,32,0.1);
+  --learn-c: #3a7a4a; --learn-bg: rgba(58,122,74,0.1);
+  --work-c: #3a5a8a; --work-bg: rgba(58,90,138,0.1);
+  --family-c: #8a3a3a; --family-bg: rgba(138,58,58,0.1);
+}
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--ink); font-family: 'Noto Serif SC', serif; min-height: 100vh; padding: 0 0 80px; }
+
+#loginScreen {
+  position: fixed; inset: 0; background: var(--ink);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 999; padding: 32px; text-align: center;
+}
+.login-no { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.3em; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
+.login-title { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 600; color: var(--bg); line-height: 1; margin-bottom: 8px; }
+.login-sub { font-size: 13px; color: rgba(247,243,237,0.5); margin-bottom: 48px; line-height: 1.6; }
+.login-btn { background: var(--bg); color: var(--ink); border: none; padding: 16px 32px; font-family: 'Noto Serif SC', serif; font-size: 15px; font-weight: 600; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 12px; transition: opacity 0.15s; }
+.login-btn:active { opacity: 0.8; }
+.login-btn img { width: 20px; height: 20px; }
+.login-note { font-family: 'DM Mono', monospace; font-size: 10px; color: rgba(247,243,237,0.3); margin-top: 24px; letter-spacing: 0.1em; line-height: 1.7; }
+
+#syncStatus { position: fixed; bottom: 16px; right: 16px; font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); display: flex; align-items: center; gap: 6px; z-index: 50; background: var(--bg); padding: 6px 10px; border-radius: 20px; border: 1px solid var(--border); }
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
+.sync-dot.syncing { background: var(--gold); animation: pulse 1s infinite; }
+.sync-dot.synced { background: var(--learn-c); }
+.sync-dot.error { background: var(--body-c); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.topbar { background: var(--ink); color: var(--bg); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+.topbar-no { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; margin-bottom: 2px; }
+.topbar-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 600; line-height: 1; }
+.topbar-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.topbar-dates { font-family: 'DM Mono', monospace; font-size: 11px; color: rgba(247,243,237,0.6); }
+.progress-text { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--gold); font-weight: 500; }
+.user-pill { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); border-radius: 20px; padding: 4px 10px; cursor: pointer; }
+.user-pill img { width: 16px; height: 16px; border-radius: 50%; }
+.user-pill span { font-family: 'DM Mono', monospace; font-size: 9px; color: rgba(247,243,237,0.7); }
+.progress-bar-wrap { height: 3px; background: rgba(255,255,255,0.1); }
+.progress-bar-fill { height: 100%; background: var(--gold); transition: width 0.5s ease; }
+
+.page { max-width: 680px; margin: 0 auto; padding: 0 16px; }
+.section { margin: 28px 0; }
+.section-label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--muted); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+.section-label::after { content:''; flex:1; height:1px; background: var(--border); }
+
+.principle { background: var(--ink); color: rgba(247,243,237,0.85); padding: 18px 22px; display: flex; gap: 14px; margin: 20px 0 16px; border-radius: 2px; }
+.principle-text { font-size: 13px; line-height: 1.7; }
+.principle-text strong { color: #f7f3ed; }
+
+/* Lesson from last 10 days */
+.lesson-box { background: var(--gold-light); border: 1px solid var(--gold); padding: 16px 20px; border-radius: 2px; margin-bottom: 16px; }
+.lesson-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.15em; color: var(--gold); text-transform: uppercase; margin-bottom: 10px; }
+.lesson-item { font-size: 12.5px; color: var(--ink); line-height: 1.7; padding-left: 14px; position: relative; }
+.lesson-item::before { content: '→'; position: absolute; left: 0; color: var(--gold); font-size: 11px; }
+
+.must-banner { background: var(--gold-light); border: 1.5px solid var(--gold); padding: 14px 18px; display: flex; gap: 12px; align-items: flex-start; border-radius: 2px; margin-bottom: 16px; }
+.must-star { color: var(--gold); font-size: 18px; flex-shrink: 0; }
+.must-text { font-size: 13px; line-height: 1.6; }
+.must-text strong { color: var(--ink); }
+
+.stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 20px; }
+.stat-box { background: var(--paper); border: 1px solid var(--border); padding: 14px 10px; text-align: center; border-radius: 2px; }
+.stat-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+.stat-label { font-size: 10px; color: var(--muted); line-height: 1.3; }
+.stat-box.body .stat-num { color: var(--body-c); }
+.stat-box.learn .stat-num { color: var(--learn-c); }
+.stat-box.work .stat-num { color: var(--work-c); }
+.stat-box.family .stat-num { color: var(--family-c); }
+
+.days-grid { display: grid; grid-template-columns: repeat(10,1fr); gap: 6px; margin-bottom: 16px; }
+.day-btn { aspect-ratio: 1; background: var(--paper); border: 1.5px solid var(--border); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; padding: 4px 2px; -webkit-user-select: none; user-select: none; }
+.day-btn:hover { border-color: var(--gold); background: var(--gold-light); }
+.day-btn.today { border-color: var(--gold); border-width: 2px; }
+.day-btn.future { opacity: 0.4; cursor: default; }
+.day-num { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; color: var(--ink); line-height: 1; }
+.day-date { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--muted); margin-top: 2px; }
+.day-checks { display: flex; gap: 2px; margin-top: 4px; flex-wrap: wrap; justify-content: center; }
+.dcheck { width: 5px; height: 5px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+.dcheck.done-body { background: var(--body-c); }
+.dcheck.done-learn { background: var(--learn-c); }
+.dcheck.done-work { background: var(--work-c); }
+.dcheck.done-family { background: var(--family-c); }
+
+.dim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width:480px) { .dim-grid { grid-template-columns: 1fr; } }
+.dim-card { background: var(--paper); border: 1px solid var(--border); padding: 16px 18px; position: relative; overflow: hidden; border-radius: 2px; }
+.dim-card::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.dim-card.body::after { background: var(--body-c); }
+.dim-card.learn::after { background: var(--learn-c); }
+.dim-card.work::after { background: var(--work-c); }
+.dim-card.family::after { background: var(--family-c); }
+.dim-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.dim-emoji { font-size: 16px; }
+.dim-title { font-size: 12px; font-weight: 700; }
+.dim-card.body .dim-title { color: var(--body-c); }
+.dim-card.learn .dim-title { color: var(--learn-c); }
+.dim-card.work .dim-title { color: var(--work-c); }
+.dim-card.family .dim-title { color: var(--family-c); }
+.dim-focus { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 10px; line-height: 1.4; }
+.dim-min { display: inline-block; background: var(--ink); color: var(--gold); font-family: 'DM Mono', monospace; font-size: 9px; padding: 2px 6px; border-radius: 2px; margin-bottom: 8px; letter-spacing: 0.1em; }
+
+.modal-overlay { position: fixed; inset: 0; background: rgba(26,22,18,0.7); z-index: 200; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal { background: var(--bg); width: 100%; max-width: 680px; max-height: 92vh; overflow-y: auto; border-radius: 12px 12px 0 0; padding: 24px 20px 40px; transform: translateY(100%); transition: transform 0.3s ease; position: relative; }
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 20px; }
+.modal-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 600; margin-bottom: 4px; }
+.modal-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); margin-bottom: 20px; }
+
+.check-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+.check-toggle { padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 6px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.15s; background: var(--paper); -webkit-user-select: none; user-select: none; }
+.check-toggle:active { transform: scale(0.97); }
+.check-toggle.active-body { background: var(--body-bg); border-color: var(--body-c); }
+.check-toggle.active-learn { background: var(--learn-bg); border-color: var(--learn-c); }
+.check-toggle.active-work { background: var(--work-bg); border-color: var(--work-c); }
+.check-toggle.active-family { background: var(--family-bg); border-color: var(--family-c); }
+.toggle-icon { font-size: 20px; }
+.toggle-label { font-size: 12px; font-weight: 700; color: var(--ink); }
+.toggle-sub { font-size: 10px; color: var(--muted); margin-top: 1px; }
+.check-mark { margin-left: auto; font-size: 18px; opacity: 0; transition: opacity 0.15s; }
+.check-toggle.active-body .check-mark,
+.check-toggle.active-learn .check-mark,
+.check-toggle.active-work .check-mark,
+.check-toggle.active-family .check-mark { opacity: 1; }
+
+.journal-section-title { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); letter-spacing: 0.05em; }
+.journal-fields { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.field-label { font-size: 12px; font-weight: 600; color: var(--ink); margin-bottom: 5px; display: flex; align-items: center; gap: 6px; }
+textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 6px; padding: 10px 14px; font-family: 'Noto Serif SC', serif; font-size: 13px; color: var(--ink); background: var(--paper); resize: none; line-height: 1.6; transition: border-color 0.15s; outline: none; -webkit-appearance: none; }
+textarea:focus { border-color: var(--gold); }
+textarea::placeholder { color: var(--border); }
+
+/* Gratitude section */
+.gratitude-fields { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.gratitude-item { display: flex; align-items: flex-start; gap: 10px; }
+.gratitude-num { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 600; color: var(--gold); line-height: 1.3; flex-shrink: 0; width: 20px; }
+.gratitude-item textarea { margin: 0; }
+
+.save-btn { width: 100%; background: var(--ink); color: var(--bg); border: none; padding: 16px; font-family: 'Noto Serif SC', serif; font-size: 14px; font-weight: 600; border-radius: 6px; cursor: pointer; margin-top: 8px; letter-spacing: 0.05em; transition: background 0.15s; -webkit-appearance: none; }
+.save-btn:active { background: #333; }
+.close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 24px; color: var(--muted); cursor: pointer; padding: 4px; }
+
+.review-card { background: var(--ink); color: rgba(247,243,237,0.85); padding: 22px 24px; border-radius: 2px; }
+.review-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--gold); margin-bottom: 14px; }
+.review-field { margin-bottom: 14px; }
+.review-field-label { font-size: 11px; color: rgba(247,243,237,0.5); font-family: 'DM Mono', monospace; letter-spacing: 0.1em; margin-bottom: 6px; }
+.review-field textarea { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.1); color: var(--bg); }
+.review-field textarea:focus { border-color: var(--gold); }
+.review-field textarea::placeholder { color: rgba(247,243,237,0.2); }
+
+.export-section { margin: 28px 0 0; padding: 24px; background: var(--paper); border: 1px solid var(--border); border-radius: 2px; text-align: center; }
+.export-title { font-size: 13px; color: var(--muted); margin-bottom: 14px; line-height: 1.6; }
+.export-btn { background: var(--ink); color: var(--bg); border: none; padding: 14px 32px; font-family: 'Noto Serif SC', serif; font-size: 14px; font-weight: 600; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+.export-btn:active { background: #333; }
+.export-hint { font-size: 11px; color: var(--border); margin-top: 10px; font-family: 'DM Mono', monospace; }
+
+.toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--ink); color: var(--bg); padding: 12px 24px; border-radius: 24px; font-size: 13px; opacity: 0; transition: all 0.3s; z-index: 300; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@media print {
+  body { background: white; padding: 0; }
+  .topbar, .progress-bar-wrap, .modal-overlay, .toast, .export-section,
+  #loginScreen, #syncStatus { display: none !important; }
+  .page { max-width: 100%; padding: 0 24px; }
+  .pdf-header { display: block !important; }
+  .review-card { background: #1a1612 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .review-field textarea { border: 1px solid #ccc; background: white !important; color: #1a1612 !important; min-height: 40px; }
+}
+.pdf-header { display: none; text-align: center; padding: 24px 0 16px; border-bottom: 2px solid #1a1612; margin-bottom: 20px; }
+.pdf-header-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 600; color: #1a1612; margin-bottom: 4px; }
+.pdf-header-sub { font-size: 12px; color: #7a6e60; letter-spacing: 0.1em; }
+
+.journal-summary { margin: 20px 0; }
+.journal-day-block { background: #faf8f4; border: 1px solid #e0d8cc; padding: 12px 16px; margin-bottom: 8px; border-radius: 2px; page-break-inside: avoid; }
+.journal-day-title { font-weight: 700; font-size: 13px; margin-bottom: 8px; color: #1a1612; display: flex; align-items: center; gap: 10px; }
+.journal-day-checks { display: flex; gap: 6px; }
+.jcheck { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-family: 'DM Mono', monospace; }
+.jcheck.body { background: rgba(176,74,32,0.12); color: #b04a20; }
+.jcheck.learn { background: rgba(58,122,74,0.12); color: #3a7a4a; }
+.jcheck.work { background: rgba(58,90,138,0.12); color: #3a5a8a; }
+.jcheck.family { background: rgba(138,58,58,0.12); color: #8a3a3a; }
+.journal-entry-line { font-size: 12px; line-height: 1.6; color: #5a4e42; padding: 2px 0; }
+.journal-entry-line strong { color: #1a1612; font-size: 11px; }
+.empty-entry { color: #bbb; font-style: italic; }
+.gratitude-line { font-size: 12px; line-height: 1.6; color: #b8944a; padding: 2px 0; }
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-no">2026 · 36个10天 · NO.02</div>
+  <div class="login-title">扎根</div>
+  <div class="login-sub">登录后，你的记录将同步到所有设备<br>iPhone · iPad · MacBook 随时随地</div>
+  <button class="login-btn" onclick="signInWithGoogle()">
+    <img src="https://www.google.com/favicon.ico" alt="G">
+    用 Google 账号登录
+  </button>
+  <div class="login-note">数据存在你自己的云端 · 仅你可见</div>
+</div>
+
+<div id="syncStatus">
+  <div class="sync-dot" id="syncDot"></div>
+  <span id="syncLabel">未同步</span>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-no">NO.02 · 地基期</div>
+    <div class="topbar-title">扎根</div>
+  </div>
+  <div class="topbar-right">
+    <div class="topbar-dates">4/1 — 4/10</div>
+    <div class="progress-text" id="progressText">0 / 10 天</div>
+    <div class="user-pill" id="userPill" onclick="signOut()" style="display:none">
+      <img id="userAvatar" src="" alt="">
+      <span id="userName">退出</span>
+    </div>
+  </div>
+</div>
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+</div>
+
+<div class="page">
+  <div class="pdf-header">
+    <div class="pdf-header-title">第2个10天 · 扎根</div>
+    <div class="pdf-header-sub">4月1日 — 4月10日 · 2026年 · 地基期</div>
+  </div>
+
+  <div class="principle">
+    <div style="font-size:20px;flex-shrink:0">💡</div>
+    <div class="principle-text">
+      上个10天最大的教训：<strong>模糊是最大的敌人。</strong>这个10天，每件事具体到最小动作。拿起来就能做，放下就算完成。
+    </div>
+  </div>
+
+  <!-- Lesson from last period -->
+  <div class="lesson-box">
+    <div class="lesson-title">从第1个10天带来的</div>
+    <div class="lesson-item">✅ 陶瓷邮件发出，博士推进有实质进展</div>
+    <div class="lesson-item">✅ 弹力带买了也用了，方向对了</div>
+    <div class="lesson-item">✅ 小禹钢琴大部分都陪了</div>
+    <div class="lesson-item">⚡ 这次：运动极度具体 · 学习有明确时长 · 记录不能断</div>
+  </div>
+
+  <div class="must-banner">
+    <div class="must-star">★</div>
+    <div class="must-text"><strong>本期唯一不可跳过：</strong>每天弹力绳100个拉升。起床就做，不需要换衣服，不需要出门，拿起来就开始。</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">完成统计</div>
+    <div class="stats-row">
+      <div class="stat-box body"><div class="stat-num" id="stat-body">0</div><div class="stat-label">🏃 身心</div></div>
+      <div class="stat-box learn"><div class="stat-num" id="stat-learn">0</div><div class="stat-label">📚 学习</div></div>
+      <div class="stat-box work"><div class="stat-num" id="stat-work">0</div><div class="stat-label">💼 事业</div></div>
+      <div class="stat-box family"><div class="stat-num" id="stat-family">0</div><div class="stat-label">🏠 家庭</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">点击日期打卡记录</div>
+    <div class="days-grid" id="daysGrid"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">四维焦点任务</div>
+    <div class="dim-grid">
+
+      <div class="dim-card body">
+        <div class="dim-head"><div class="dim-emoji">🏃</div><div class="dim-title">身心维度</div></div>
+        <div class="dim-min">保底 · 每天必做</div>
+        <div class="dim-focus">弹力绳100个<br>起床就做</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.8">
+          · <strong>保底：</strong>弹力绳拉升 × 100个<br>
+          · <strong>加分：</strong>哑铃手脚搭配 × 200个<br>
+          · <strong>加分：</strong>全天8000步<br>
+          · 参考抖音：拿铁不加冰<br>
+          · 不需要出门，拿起来就做
+        </div>
+      </div>
+
+      <div class="dim-card learn">
+        <div class="dim-head"><div class="dim-emoji">📚</div><div class="dim-title">学习维度</div></div>
+        <div class="dim-min">每天15分钟</div>
+        <div class="dim-focus">AI基础概念<br>+ 谢胜子文字</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.8">
+          · <strong>AI学习：</strong>李自然说/吴恩达，1天1视频<br>
+          · 做3行笔记：是什么·干嘛用·我的想法<br>
+          · <strong>谢胜子：</strong>看文字内容10-15分钟<br>
+          · 博士：跟进NIE EdD回复情况<br>
+          · 不求多，求每天都有
+        </div>
+      </div>
+
+      <div class="dim-card work">
+        <div class="dim-head"><div class="dim-emoji">💼</div><div class="dim-title">事业维度</div></div>
+        <div class="dim-min">两线并行</div>
+        <div class="dim-focus">Lark工作流<br>+ 社媒账号探索</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.8">
+          · <strong>Lark：</strong>搭建销售+项目管理工作流<br>
+          · Joy工作routine和待遇沟通<br>
+          · <strong>社媒：</strong>研究小红书/视频号定位<br>
+          · 发1条内容（不完美也要发）<br>
+          · SOP：整理小满负责方向
+        </div>
+      </div>
+
+      <div class="dim-card family">
+        <div class="dim-head"><div class="dim-emoji">🏠</div><div class="dim-title">家庭维度</div></div>
+        <div class="dim-min">质量陪伴</div>
+        <div class="dim-focus">小禹钢琴<br>+ 探索高质量陪伴</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.8">
+          · 每次陪练后记一句感受<br>
+          · 这10天思考：什么是高质量陪伴？<br>
+          · 尝试1次专属亲子活动<br>
+          · 不看手机的30分钟
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">第10天 · 复盘</div>
+    <div class="review-card">
+      <div class="review-title">10天结束，回答这6个问题</div>
+      <div class="review-field">
+        <div class="review-field-label">Q1 · 弹力绳完成了几天？状态好时做了哑铃吗？</div>
+        <textarea rows="2" placeholder="写下来..." id="review-q1" oninput="saveReview()"></textarea>
+      </div>
+      <div class="review-field">
+        <div class="review-field-label">Q2 · AI学了什么？最触动你的一个概念是什么？</div>
+        <textarea rows="2" placeholder="写下来..." id="review-q2" oninput="saveReview()"></textarea>
+      </div>
+      <div class="review-field">
+        <div class="review-field-label">Q3 · Lark工作流进展如何？Joy的沟通做了吗？</div>
+        <textarea rows="2" placeholder="写下来..." id="review-q3" oninput="saveReview()"></textarea>
+      </div>
+      <div class="review-field">
+        <div class="review-field-label">Q4 · 小禹陪伴：你觉得什么是高质量陪伴？有答案了吗？</div>
+        <textarea rows="2" placeholder="写下来..." id="review-q4" oninput="saveReview()"></textarea>
+      </div>
+      <div class="review-field">
+        <div class="review-field-label">Q5 · 这10天，我的状态整体是几分（1-10）？</div>
+        <textarea rows="2" placeholder="写下来..." id="review-q5" oninput="saveReview()"></textarea>
+      </div>
+      <div class="review-field">
+        <div class="review-field-label">Q6 · 第3个10天，我最需要调整或加入的一件事是什么？</div>
+        <textarea rows="2" placeholder="写下来..." id="review-q6" oninput="saveReview()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="section journal-summary" id="journalSummary" style="display:none">
+    <div class="section-label">每日记录详情</div>
+    <div id="journalSummaryContent"></div>
+  </div>
+
+  <div class="export-section">
+    <div class="export-title">10天结束后，导出PDF存档<br>留存你的成长轨迹</div>
+    <button class="export-btn" onclick="exportPDF()"><span>📄</span> 导出 PDF 记录</button>
+    <div class="export-hint">Safari → 分享 → 存储为PDF → iCloud</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <button class="close-btn" onclick="closeModal()">×</button>
+    <div class="modal-title" id="modalTitle">第1天</div>
+    <div class="modal-date" id="modalDate">4月1日</div>
+
+    <div class="check-toggles">
+      <div class="check-toggle" id="toggle-body" onclick="toggleCheck('body')">
+        <div class="toggle-icon">🏃</div>
+        <div class="toggle-info"><div class="toggle-label">身心</div><div class="toggle-sub">弹力绳100个</div></div>
+        <div class="check-mark">✓</div>
+      </div>
+      <div class="check-toggle" id="toggle-learn" onclick="toggleCheck('learn')">
+        <div class="toggle-icon">📚</div>
+        <div class="toggle-info"><div class="toggle-label">学习</div><div class="toggle-sub">AI视频+谢胜子</div></div>
+        <div class="check-mark">✓</div>
+      </div>
+      <div class="check-toggle" id="toggle-work" onclick="toggleCheck('work')">
+        <div class="toggle-icon">💼</div>
+        <div class="toggle-info"><div class="toggle-label">事业</div><div class="toggle-sub">Lark/社媒</div></div>
+        <div class="check-mark">✓</div>
+      </div>
+      <div class="check-toggle" id="toggle-family" onclick="toggleCheck('family')">
+        <div class="toggle-icon">🏠</div>
+        <div class="toggle-info"><div class="toggle-label">家庭</div><div class="toggle-sub">小禹钢琴陪练</div></div>
+        <div class="check-mark">✓</div>
+      </div>
+    </div>
+
+    <div class="journal-section-title">📝 每日记录</div>
+    <div class="journal-fields">
+      <div class="field-wrap">
+        <div class="field-label"><span>⏰</span> 今天几点起床</div>
+        <textarea rows="1" id="journal-wakeup" placeholder="例如：7:05" oninput="saveJournal()"></textarea>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label"><span>✍️</span> 今天做了</div>
+        <textarea rows="2" id="journal-done" placeholder="不管多小，只要做了就写..." oninput="saveJournal()"></textarea>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label"><span>💭</span> 状态感受</div>
+        <textarea rows="2" id="journal-feel" placeholder="一句话，不用分析，只用感受..." oninput="saveJournal()"></textarea>
+      </div>
+      <div class="field-wrap">
+        <div class="field-label"><span>🌅</span> 明天一件事</div>
+        <textarea rows="1" id="journal-tomorrow" placeholder="只写一件，写完放下，去睡觉..." oninput="saveJournal()"></textarea>
+      </div>
+    </div>
+
+    <div class="journal-section-title">🌸 今日感恩3件事</div>
+    <div class="gratitude-fields">
+      <div class="gratitude-item">
+        <div class="gratitude-num">1</div>
+        <textarea rows="1" id="gratitude-1" placeholder="今天让你感到温暖或开心的小事..." oninput="saveJournal()"></textarea>
+      </div>
+      <div class="gratitude-item">
+        <div class="gratitude-num">2</div>
+        <textarea rows="1" id="gratitude-2" placeholder="生活里的小确幸..." oninput="saveJournal()"></textarea>
+      </div>
+      <div class="gratitude-item">
+        <div class="gratitude-num">3</div>
+        <textarea rows="1" id="gratitude-3" placeholder="哪怕很小的一件事..." oninput="saveJournal()"></textarea>
+      </div>
+    </div>
+
+    <button class="save-btn" onclick="saveAndClose()">保存 · 关闭</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut as fbSignOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, onSnapshot, setDoc }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCnCg4AkE8tWH4kE2v3bLCKjSk-yeEs1ZA",
+  authDomain: "days-project-f33c4.firebaseapp.com",
+  projectId: "days-project-f33c4",
+  storageBucket: "days-project-f33c4.firebasestorage.app",
+  messagingSenderId: "836340600454",
+  appId: "1:836340600454:web:4f37cbc616183c21328b07"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const provider = new GoogleAuthProvider();
+
+let currentUser = null;
+let data = {};
+let unsubscribe = null;
+let saveTimer = null;
+
+window.signInWithGoogle = async () => {
+  try { await signInWithPopup(auth, provider); }
+  catch(e) { showToast('登录失败，请重试'); }
+};
+
+window.signOut = async () => {
+  if (!confirm('确认退出登录？')) return;
+  if (unsubscribe) unsubscribe();
+  await fbSignOut(auth);
+  data = {};
+  renderGrid();
+};
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    document.getElementById('loginScreen').style.display = 'none';
+    const pill = document.getElementById('userPill');
+    pill.style.display = 'flex';
+    document.getElementById('userAvatar').src = user.photoURL || '';
+    document.getElementById('userName').textContent = user.displayName?.split(' ')[0] || '退出';
+    startSync(user.uid);
+  } else {
+    currentUser = null;
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('userPill').style.display = 'none';
+    setSyncStatus('idle');
+  }
+});
+
+function startSync(uid) {
+  setSyncStatus('syncing');
+  const docRef = doc(db, 'users', uid, 'plans', 'day2');
+  unsubscribe = onSnapshot(docRef, (snap) => {
+    if (snap.exists()) data = snap.data() || {};
+    else data = {};
+    renderGrid();
+    loadReview();
+    setSyncStatus('synced');
+  }, () => setSyncStatus('error'));
+}
+
+async function saveToCloud() {
+  if (!currentUser) return;
+  setSyncStatus('syncing');
+  try {
+    await setDoc(doc(db, 'users', currentUser.uid, 'plans', 'day2'), data);
+    setSyncStatus('synced');
+  } catch(e) {
+    setSyncStatus('error');
+    showToast('保存失败，请检查网络');
+  }
+}
+
+function schedSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveToCloud, 800);
+}
+
+function setSyncStatus(s) {
+  const dot = document.getElementById('syncDot');
+  const label = document.getElementById('syncLabel');
+  dot.className = 'sync-dot ' + s;
+  label.textContent = s==='syncing'?'同步中...':s==='synced'?'已同步':s==='error'?'同步失败':'未同步';
+}
+
+const DAYS = [
+  {num:1,date:'4/1',label:'4月1日'},{num:2,date:'4/2',label:'4月2日'},
+  {num:3,date:'4/3',label:'4月3日'},{num:4,date:'4/4',label:'4月4日'},
+  {num:5,date:'4/5',label:'4月5日'},{num:6,date:'4/6',label:'4月6日'},
+  {num:7,date:'4/7',label:'4月7日'},{num:8,date:'4/8',label:'4月8日'},
+  {num:9,date:'4/9',label:'4月9日'},{num:10,date:'4/10',label:'4月10日'},
+];
+
+const START_DATE = new Date('2026-04-01');
+
+function getToday() {
+  return Math.floor((new Date() - START_DATE) / (1000*60*60*24));
+}
+
+window.renderGrid = function() {
+  const grid = document.getElementById('daysGrid');
+  grid.innerHTML = '';
+  const todayIdx = getToday();
+  DAYS.forEach((d,i) => {
+    const checks = (data[`day_${i+1}`]||{}).checks||{};
+    const isFuture = i > todayIdx;
+    const isToday = i === todayIdx;
+    const btn = document.createElement('div');
+    btn.className = 'day-btn'+(isToday?' today':'')+(isFuture?' future':'');
+    btn.innerHTML = `<div class="day-num">${d.num}</div><div class="day-date">${d.date}</div>
+      <div class="day-checks">
+        <div class="dcheck ${checks.body?'done-body':''}"></div>
+        <div class="dcheck ${checks.learn?'done-learn':''}"></div>
+        <div class="dcheck ${checks.work?'done-work':''}"></div>
+        <div class="dcheck ${checks.family?'done-family':''}"></div>
+      </div>`;
+    if (!isFuture) btn.onclick = () => openModal(i+1);
+    grid.appendChild(btn);
+  });
+  updateStats();
+  updateProgress();
+}
+
+function updateStats() {
+  ['body','learn','work','family'].forEach(dim => {
+    let c=0;
+    for(let i=1;i<=10;i++) if(((data[`day_${i}`]||{}).checks||{})[dim]) c++;
+    document.getElementById(`stat-${dim}`).textContent = c;
+  });
+}
+
+function updateProgress() {
+  const daysIn = Math.min(Math.max(getToday()+1,0),10);
+  document.getElementById('progressBar').style.width=(daysIn/10*100)+'%';
+  document.getElementById('progressText').textContent=`第 ${daysIn} / 10 天`;
+}
+
+let currentDay = null;
+
+window.openModal = function(dayNum) {
+  currentDay = dayNum;
+  const d = DAYS[dayNum-1];
+  const dayData = data[`day_${dayNum}`]||{};
+  const checks = dayData.checks||{};
+  const journal = dayData.journal||{};
+  document.getElementById('modalTitle').textContent = `第 ${dayNum} 天`;
+  document.getElementById('modalDate').textContent = d.label;
+  ['body','learn','work','family'].forEach(dim => {
+    document.getElementById(`toggle-${dim}`).className='check-toggle'+(checks[dim]?` active-${dim}`:'');
+  });
+  document.getElementById('journal-wakeup').value = journal.wakeup||'';
+  document.getElementById('journal-done').value = journal.done||'';
+  document.getElementById('journal-feel').value = journal.feel||'';
+  document.getElementById('journal-tomorrow').value = journal.tomorrow||'';
+  document.getElementById('gratitude-1').value = journal.g1||'';
+  document.getElementById('gratitude-2').value = journal.g2||'';
+  document.getElementById('gratitude-3').value = journal.g3||'';
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+window.closeModal = function() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+  currentDay = null;
+}
+
+window.handleOverlayClick = function(e) {
+  if (e.target===document.getElementById('modalOverlay')) closeModal();
+}
+
+window.toggleCheck = function(dim) {
+  if (!currentDay) return;
+  const key = `day_${currentDay}`;
+  if (!data[key]) data[key]={};
+  if (!data[key].checks) data[key].checks={};
+  data[key].checks[dim] = !data[key].checks[dim];
+  document.getElementById(`toggle-${dim}`).className='check-toggle'+(data[key].checks[dim]?` active-${dim}`:'');
+  renderGrid();
+  schedSave();
+}
+
+window.saveJournal = function() {
+  if (!currentDay) return;
+  const key = `day_${currentDay}`;
+  if (!data[key]) data[key]={};
+  data[key].journal = {
+    wakeup: document.getElementById('journal-wakeup').value,
+    done: document.getElementById('journal-done').value,
+    feel: document.getElementById('journal-feel').value,
+    tomorrow: document.getElementById('journal-tomorrow').value,
+    g1: document.getElementById('gratitude-1').value,
+    g2: document.getElementById('gratitude-2').value,
+    g3: document.getElementById('gratitude-3').value,
+  };
+  schedSave();
+}
+
+window.saveAndClose = function() {
+  saveJournal();
+  showToast('已保存 ✓');
+  setTimeout(closeModal, 600);
+}
+
+window.saveReview = function() {
+  const review={};
+  for(let i=1;i<=6;i++) review[`q${i}`]=document.getElementById(`review-q${i}`).value;
+  data.review=review;
+  schedSave();
+}
+
+window.loadReview = function() {
+  const review=data.review||{};
+  for(let i=1;i<=6;i++) {
+    const el=document.getElementById(`review-q${i}`);
+    if(el&&review[`q${i}`]) el.value=review[`q${i}`];
+  }
+}
+
+window.exportPDF = function() {
+  const summaryEl=document.getElementById('journalSummary');
+  const contentEl=document.getElementById('journalSummaryContent');
+  const DIMS={body:{label:'🏃 身心',cls:'body'},learn:{label:'📚 学习',cls:'learn'},work:{label:'💼 事业',cls:'work'},family:{label:'🏠 家庭',cls:'family'}};
+  let html='';
+  DAYS.forEach((d,i) => {
+    const dayData=data[`day_${i+1}`]||{};
+    const checks=dayData.checks||{};
+    const j=dayData.journal||{};
+    const badges=Object.entries(DIMS).filter(([k])=>checks[k]).map(([k,v])=>`<span class="jcheck ${v.cls}">${v.label}</span>`).join('');
+    const hasGratitude = j.g1||j.g2||j.g3;
+    html+=`<div class="journal-day-block">
+      <div class="journal-day-title">第${i+1}天 &nbsp;${d.label}<div class="journal-day-checks">${badges||'<span style="font-size:10px;color:#bbb">未打卡</span>'}</div></div>
+      <div class="journal-day-entries">
+        <div class="journal-entry-line"><strong>⏰ 起床：</strong>${j.wakeup||'<span class="empty-entry">未填</span>'}</div>
+        <div class="journal-entry-line"><strong>✍️ 今天做了：</strong>${j.done||'<span class="empty-entry">未填</span>'}</div>
+        <div class="journal-entry-line"><strong>💭 状态感受：</strong>${j.feel||'<span class="empty-entry">未填</span>'}</div>
+        <div class="journal-entry-line"><strong>🌅 明天一件事：</strong>${j.tomorrow||'<span class="empty-entry">未填</span>'}</div>
+        ${hasGratitude?`<div class="gratitude-line"><strong>🌸 感恩：</strong>${[j.g1,j.g2,j.g3].filter(Boolean).join(' · ')}</div>`:''}
+      </div></div>`;
+  });
+  contentEl.innerHTML=html;
+  summaryEl.style.display='block';
+  setTimeout(()=>{ window.print(); setTimeout(()=>{summaryEl.style.display='none';},1000); },200);
+}
+
+window.showToast = function(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+renderGrid();
+</script>
+</body>
+</html>
